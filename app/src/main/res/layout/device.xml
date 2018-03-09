@@ -12,7 +12,7 @@
         android:gravity="center_vertical"
         android:padding="5dp"
         android:text="@string/current_device"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:textColor="@color/colorWhite"/>
     <ListView
         android:id="@+id/listview_availableDeviceList"
