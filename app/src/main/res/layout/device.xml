@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textview_currentDevice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBlack"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:text="@string/current_device"
+        android:textSize="20sp"
+        android:textColor="@color/colorWhite"/>
+    <ListView
+        android:id="@+id/listview_availableDeviceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorDeviceListBackground"
+        android:divider="@color/colorListviewDivider"
+        android:dividerHeight="2dp"
+        android:listSelector="@drawable/device_listview_selector"
+        />
+
+</LinearLayout>
