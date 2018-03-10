@@ -19,6 +19,31 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navigation;
     List<Fragment> listFragment;
 
+    private ViewPager.OnPageChangeListener mOnPageChangeListener
+            = new ViewPager.OnPageChangeListener(){
+
+            @Override
+            public void onPageSelected(int position) {
+                //position is current page
+                //call this method when finish scrolling.
+
+                navigation.getMenu().getItem(position).setChecked(true);
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //position: current page
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                //state = 1: scrolling
+                //state = 2: finish scrolling
+                //state = 0: done nothing
+            }
+    };
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -53,30 +78,7 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener(){
-
-            @Override
-            public void onPageSelected(int position) {
-                //position is current page
-                //call this method when finish scrolling.
-
-                navigation.getMenu().getItem(position).setChecked(true);
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //position: current page
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                //state = 1: scrolling
-                //state = 2: finish scrolling
-                //state = 0: done nothing
-            }
-        });
+        viewPager.setOnPageChangeListener(mOnPageChangeListener);
     }
 
 
