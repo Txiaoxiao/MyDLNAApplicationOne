@@ -8,7 +8,7 @@
         android:id="@+id/textview_currentDevice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorBlack"
+        android:background="@color/colorListviewDivider"
         android:gravity="center_vertical"
         android:padding="5dp"
         android:text="@string/current_device"

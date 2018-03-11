@@ -5,6 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorBlack">#ff000000</color>
     <color name="colorWhite">#ffff</color>
-    <color name="colorDeviceListBackground">#555555</color>
-    <color name="colorListviewDivider">#3CB371</color>
+    <color name="colorDeviceListBackground">#ffffff</color>
+    <color name="colorListviewDivider">#555555</color>
 </resources>
