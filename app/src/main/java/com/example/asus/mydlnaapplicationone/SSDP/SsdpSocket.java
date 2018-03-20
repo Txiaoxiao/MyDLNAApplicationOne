@@ -24,7 +24,7 @@ public class SsdpSocket {
 
     public SsdpSocket() throws IOException {
 
-        mSSDPSocket = new MulticastSocket(SsdpConstants.SEND_PORT); // 1900端口
+        mSSDPSocket = new MulticastSocket(10002); // 1900端口
 
         broadcastgroup = InetAddress.getByName(SsdpConstants.ADDRESS);// 239.255.255.250
 
@@ -32,7 +32,7 @@ public class SsdpSocket {
 
     }
 
-	/* Used to send SSDP packet */
+	/* send SSDP packet */
 
     public void send(String data, Context context) throws IOException {
 
@@ -45,20 +45,22 @@ public class SsdpSocket {
 
                 mSSDPSocket.send(dp);
 
-                new AlertDialog.Builder(context).setTitle("Send").setMessage("send successul!")
-                        .setPositiveButton("return", null).show();
+               /* new AlertDialog.Builder(context).setTitle("Send").setMessage("send successul!")
+                        .setPositiveButton("return", null).show();*/
 
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                new AlertDialog.Builder(context).setTitle("send failed").setMessage(e.getMessage().toString())
-                        .setPositiveButton("return", null).show();
+                throw  new IOException("send dp failed!");
+                /*new AlertDialog.Builder(context).setTitle("send failed").setMessage(e.getMessage().toString())
+                        .setPositiveButton("return", null).show();*/
             }
         } else {
+            throw new NullPointerException("null broadcastgroup or mssdpsocket");
 
         }
     }
 
-	/* Used to receive SSDP packet */
+	/*  receive SSDP packet */
 
     public DatagramPacket receive() throws IOException {
 

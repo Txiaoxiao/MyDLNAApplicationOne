@@ -1,5 +1,7 @@
 package com.example.asus.mydlnaapplicationone;
 
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -71,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
+        WifiManager.MulticastLock multicastLock = wifiManager.createMulticastLock("multicastLock");
+        multicastLock.setReferenceCounted(true);
+        multicastLock.acquire();
 
         viewPager = (ViewPager)(findViewById(R.id.viewpager));
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
