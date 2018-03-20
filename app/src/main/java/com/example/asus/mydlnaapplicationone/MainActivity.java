@@ -1,6 +1,6 @@
 package com.example.asus.mydlnaapplicationone;
 
-import android.net.wifi.WifiInfo;
+import android.app.FragmentManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     ViewPager viewPager;
     BottomNavigationView navigation;
     List<Fragment> listFragment;
+    ImagesFragment imageFragment;
 
     private ViewPager.OnPageChangeListener mOnPageChangeListener
             = new ViewPager.OnPageChangeListener(){
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         viewPager.setOnPageChangeListener(mOnPageChangeListener);
     }
+
 
 
     private void initViewPager() {

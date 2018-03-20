@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:background="@color/colorDeviceListBackground"
         android:divider="@color/colorListviewDivider"
-        android:dividerHeight="2dp"
+        android:dividerHeight="1dp"
         android:listSelector="@drawable/device_listview_selector"
         />
 
