@@ -4,6 +4,23 @@
     android:layout_height="match_parent"
     tools:context="com.example.asus.mydlnaapplicationone.ContentFragment"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorListviewDivider"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_return"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="15dp"
+            android:padding="5dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/ic_return"/>
+
+    </LinearLayout>
+
 
     <ListView
         android:id="@+id/listview_content"

@@ -13,6 +13,17 @@ public class ContentItem {
     private ContentType type;
     private  String path;
 
+    public Long getId() {
+        return id;
+    }
+
+    private  Long id;
+
+
+    public Bitmap getThumbnail() {
+        return thumbnail;
+    }
+
     public String getName(){
         return name;
     }
@@ -23,9 +34,10 @@ public class ContentItem {
         name = contentName;
         this.type = type;
     }
-    public  ContentItem(String contentName,Bitmap thumbnail,ContentType type,String path)
+    public  ContentItem(String contentName,Long id,Bitmap thumbnail,ContentType type,String path)
     {
         this(contentName,type);
+        this.id = id;
         this.thumbnail = thumbnail;
         this.type = type;
         this.path = path;
