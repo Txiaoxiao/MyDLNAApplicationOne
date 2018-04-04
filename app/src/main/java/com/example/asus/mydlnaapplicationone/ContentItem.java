@@ -9,6 +9,11 @@ import android.graphics.Bitmap;
 
 public class ContentItem {
     private String name;
+
+    public void setThumbnail(Bitmap thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
     private Bitmap thumbnail;
     private ContentType type;
     private  String path;

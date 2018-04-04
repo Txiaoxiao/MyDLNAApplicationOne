@@ -2,7 +2,9 @@ package com.example.asus.mydlnaapplicationone;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -20,6 +22,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.asus.mydlnaapplicationone.SSDP.SsdpConstants;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,26 +48,7 @@ public class ContentFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-
-        Log.i("test","onPause, contentTypeTag:"+contentTypeTag);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.i("test","onStop, contentTypeTag:"+contentTypeTag);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_content,container,false);
@@ -108,10 +94,45 @@ public class ContentFragment extends Fragment {
                 //点击item跳转到对应的文件列表fragment。如何实现？？
                 //可否通过新建adapter？？
 
-                //使用同一个list，通过更新list实现该功能------------>
+                //使用同一个list，通过更新list数据实现该功能------------>
                 if(contentTypeTag ==1)
                 {
                     //点击媒体文件时的操作
+                    View customDialogSendFile = inflater.inflate(R.layout.dialog_sendfile,container,false);
+                    ImageView imageViewCustomDialog = customDialogSendFile.findViewById(R.id.imageView_filetosend);
+                  //  imageViewCustomDialog.setImageBitmap(imageItemList.get(position).getThumbnail());
+
+                    try {
+                        Log.i("path",Uri.parse(imageItemList.get(position).getPath()).toString());
+                        imageViewCustomDialog.setImageBitmap(MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), Uri.parse(imageItemList.get(position).getPath())));
+
+                    } catch (IOException e) {
+                        imageViewCustomDialog.setImageBitmap(imageItemList.get(position).getThumbnail());
+                    }
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("SendFileTo: "+ SsdpConstants.RemoteDeviceName);
+                    builder.setView(customDialogSendFile);
+                    builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //发送file的url到远程设备
+
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //do nothing.
+                        }
+                    });
+
+                    builder.create().show();
+
+                    /*Button buttonCancel = customDialogSendFile.findViewById(R.id.button_cancel);
+                    Button buttonSend = customDialogSendFile.findViewById(R.id.button_send);*/
+
+
                 }
                 else {  //点击文件夹时的操作
                     contentTypeTag = 1;
@@ -215,7 +236,7 @@ public class ContentFragment extends Fragment {
                 Long imageId =contentItem.getId();
                 holder.icon.setTag(imageId);
                 ContentResolver contentResolver = getActivity().getContentResolver();
-                new ImageLoader().getThumbnailByThread(contentResolver,holder.icon,imageId);
+                new ImageLoader().getThumbnailByThread(contentResolver,holder.icon,imageId,contentItem);
 
                 holder.arrowIcon.setVisibility(View.GONE);
 
@@ -262,9 +283,9 @@ public class ContentFragment extends Fragment {
         for (HashMap<String,String> hashmap: listImage
              ) {
             String displayName = hashmap.get(projection[1]);
-            contentItem = new ContentItem(displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()),Long.parseLong(hashmap.get(projection[0])),null,ContentType.File,displayName) ;
+            contentItem = new ContentItem(displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()),Long.parseLong(hashmap.get(projection[0])),null,ContentType.File,hashmap.get(projection[2])) ;
            Log.i("display_name",displayName);
-           Log.i("display_name",displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()));
+           Log.i("display_name_substring",displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()));
             listContentItem.add(contentItem);
         }
         return listContentItem;

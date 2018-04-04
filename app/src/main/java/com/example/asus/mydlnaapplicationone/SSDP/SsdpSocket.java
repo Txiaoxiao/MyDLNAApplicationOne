@@ -24,7 +24,7 @@ public class SsdpSocket {
 
     public SsdpSocket() throws IOException {
 
-        mSSDPSocket = new MulticastSocket(10002); // 1900端口
+        mSSDPSocket = new MulticastSocket(1900); // 1900端口
 
         broadcastgroup = InetAddress.getByName(SsdpConstants.ADDRESS);// 239.255.255.250
 
@@ -45,8 +45,8 @@ public class SsdpSocket {
 
                 mSSDPSocket.send(dp);
 
-               /* new AlertDialog.Builder(context).setTitle("Send").setMessage("send successul!")
-                        .setPositiveButton("return", null).show();*/
+                new AlertDialog.Builder(context).setTitle("Send").setMessage("send successul!")
+                        .setPositiveButton("return", null).show();
 
             } catch (IOException e) {
                 // TODO Auto-generated catch block

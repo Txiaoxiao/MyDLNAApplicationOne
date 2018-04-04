@@ -15,6 +15,9 @@ import com.example.asus.mydlnaapplicationone.Adapters.ViewPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import GlobalVariables.Globals;
+import GlobalVariables.MyApplication;
+
 public class MainActivity extends AppCompatActivity {
 
     ViewPager viewPager;
@@ -72,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Globals globalVariables = Globals.getInstance();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -79,12 +85,11 @@ public class MainActivity extends AppCompatActivity {
         WifiManager.MulticastLock multicastLock = wifiManager.createMulticastLock("multicastLock");
         multicastLock.setReferenceCounted(true);
         multicastLock.acquire();
-
-        viewPager = (ViewPager)(findViewById(R.id.viewpager));
+        viewPager =
+                (ViewPager)(findViewById(R.id.viewpager));
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
 
         initViewPager();
-
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         viewPager.setOnPageChangeListener(mOnPageChangeListener);
     }

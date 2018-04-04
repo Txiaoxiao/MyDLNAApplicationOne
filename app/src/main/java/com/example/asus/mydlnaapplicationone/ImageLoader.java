@@ -16,7 +16,7 @@ public class ImageLoader {
     private ImageView mImageView;
     private Long mImageId;
 
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler(){//提交数据到UI
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -26,7 +26,7 @@ public class ImageLoader {
     };
 
 
-    public void getThumbnailByThread(final ContentResolver contentResolver, final ImageView imageView, final Long imageId){
+    public void getThumbnailByThread(final ContentResolver contentResolver, final ImageView imageView, final Long imageId,final ContentItem contentItem){
 
         mImageView=imageView;
         mImageId = imageId;
@@ -36,11 +36,17 @@ public class ImageLoader {
             public void run() {
                 super.run();
                 Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(contentResolver,imageId, MediaStore.Images.Thumbnails.MICRO_KIND,null);
-                Message message = Message.obtain();
+                contentItem.setThumbnail(thumbnail);
+               Message message = Message.obtain();
                 message.obj = thumbnail;
                 handler.sendMessage(message);
             }
         }.start();
+    }
+
+    public void loadImage()//
+    {
+
     }
 
 }

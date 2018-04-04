@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 
 /**
@@ -26,5 +28,15 @@ public  class Utils {
             bitmap = BitmapFactory.decodeResource(context.getResources(), vectorDrawableId);
         }
         return bitmap;
+    }
+
+    public static String getLocalIpAddress(Context context) {
+        WifiManager wifiManager=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        return intToIpAddr(wifiInfo.getIpAddress());
+    }
+
+    private static String intToIpAddr(int ip) {
+        return (ip & 0xff) + "." + ((ip>>8)&0xff) + "." + ((ip>>16)&0xff) + "." + ((ip>>24)&0xff);
     }
 }
