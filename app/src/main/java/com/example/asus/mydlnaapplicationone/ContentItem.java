@@ -9,31 +9,26 @@ import android.graphics.Bitmap;
 
 public class ContentItem {
     private String name;
+    private Bitmap thumbnail;
+    private  Long id;
+    private  String path;
+    private ContentType type;
 
     public void setThumbnail(Bitmap thumbnail) {
         this.thumbnail = thumbnail;
     }
-
-    private Bitmap thumbnail;
-    private ContentType type;
-    private  String path;
-
     public Long getId() {
         return id;
     }
-
-    private  Long id;
-
-
     public Bitmap getThumbnail() {
         return thumbnail;
     }
-
     public String getName(){
         return name;
     }
     public String getPath(){return  path;}
     public  ContentType getType(){return type;}
+
     public ContentItem(String contentName,ContentType type)
     {
         name = contentName;

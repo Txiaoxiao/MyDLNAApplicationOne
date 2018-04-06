@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -33,12 +34,14 @@ import java.util.List;
 public class ContentFragment extends Fragment {
 
     ListView listViewContent;
-    ListView listViewContentDetail;
     Button buttonReturn;
     List<ContentItem> imageItemList;//图片集
+    List<ContentItem> videoItemList;
+    List<ContentItem> audioItemList;
     List<ContentItem> folderList;   //文件夹集
     List<ContentItem> list;//listview当前显示的item集
     int contentTypeTag = 0;//0表示当前listview中显示的为folders,1表示当前显示的为具体的媒体文件。
+    int mediaTypeTag = 0;//0 for Image,1 for video,2 for audio
 
     @Override
     public void onResume() {
@@ -58,7 +61,6 @@ public class ContentFragment extends Fragment {
         buttonReturn.setVisibility(View.GONE);
 
         initFolderList();
-       // initImageItemList();
 
         list = new ArrayList<>();
         for (ContentItem contentItem:folderList
@@ -100,14 +102,32 @@ public class ContentFragment extends Fragment {
                     //点击媒体文件时的操作
                     View customDialogSendFile = inflater.inflate(R.layout.dialog_sendfile,container,false);
                     ImageView imageViewCustomDialog = customDialogSendFile.findViewById(R.id.imageView_filetosend);
-                  //  imageViewCustomDialog.setImageBitmap(imageItemList.get(position).getThumbnail());
 
-                    try {
-                        Log.i("path",Uri.parse(imageItemList.get(position).getPath()).toString());
-                        imageViewCustomDialog.setImageBitmap(MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), Uri.parse(imageItemList.get(position).getPath())));
+                    switch (mediaTypeTag){
+                        //Image
+                        case 0:
+                            try {
+                                Log.i("path",Uri.parse(imageItemList.get(position).getPath()).toString());
 
-                    } catch (IOException e) {
-                        imageViewCustomDialog.setImageBitmap(imageItemList.get(position).getThumbnail());
+                                //获取原图，失败
+                                imageViewCustomDialog.setImageBitmap(MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), Uri.parse(imageItemList.get(position).getPath())));
+
+                            } catch (IOException e) {
+                                imageViewCustomDialog.setImageBitmap(imageItemList.get(position).getThumbnail());
+                            }
+                            break;
+                        //video
+                        case 1:
+                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(videoItemList.get(position).getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
+                            imageViewCustomDialog.setImageBitmap(bitmap);
+                            break;
+
+                        //audio
+                        case 2:
+                            break;
+
+                        default:
+                            break;
                     }
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -117,6 +137,7 @@ public class ContentFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //发送file的url到远程设备
+                            //开一个线程发送url，并监听客户端的获取请求。serverSocket？
 
                         }
                     });
@@ -139,19 +160,55 @@ public class ContentFragment extends Fragment {
                     buttonReturn.setVisibility(View.VISIBLE);
                     switch (position){
                         case 0:
+                            mediaTypeTag = 0;
                             list.clear();
-                            String[] projection = {MediaStore.Images.Media._ID,
+                            String[] imageProjection = {MediaStore.Images.Media._ID,
                                     MediaStore.Images.Media.DISPLAY_NAME,
                                     MediaStore.Images.Media.DATA,
                                     MediaStore.Images.Media.DEFAULT_SORT_ORDER};
-                            String orderBy = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
+                            String imageOrderBy = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
                             Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                            imageItemList = getContentProvider(uri, projection, orderBy);
+                            imageItemList = getContentProvider(uri, imageProjection, imageOrderBy,ContentType.Image);
                             for (ContentItem item:imageItemList
                                     ) {
                                 list.add(item);
                             }
                             adapter.notifyDataSetChanged();
+                            break;
+
+                        case 1:
+                            mediaTypeTag = 1;
+                            list.clear();
+                            String[] videoProjection = {MediaStore.Video.Media._ID,
+                                    MediaStore.Video.Media.DISPLAY_NAME,
+                                    MediaStore.Video.Media.DATA,
+                                    MediaStore.Video.Media.DEFAULT_SORT_ORDER};
+                            String videoOrderBy = MediaStore.Video.Media.DEFAULT_SORT_ORDER;
+                            Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                            videoItemList = getContentProvider(videoUri,videoProjection,videoOrderBy,ContentType.Video);
+                            for (ContentItem item:videoItemList
+                                 ) {
+                                list.add(item);
+                            }
+                            adapter.notifyDataSetChanged();
+                            break;
+
+                        case 2:
+                            mediaTypeTag = 2;
+                            list.clear();
+                            String[] audioProjection = {MediaStore.Audio.Media._ID,
+                                    MediaStore.Audio.Media.DISPLAY_NAME,
+                                    MediaStore.Audio.Media.DATA,
+                                    MediaStore.Audio.Media.DEFAULT_SORT_ORDER};
+                            String audioOrderBy = MediaStore.Audio.Media.DEFAULT_SORT_ORDER;
+                            Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                            audioItemList = getContentProvider(audioUri,audioProjection,audioOrderBy,ContentType.Audio);
+                            for (ContentItem item:audioItemList
+                                 ) {
+                                list.add(item);
+                            }
+                            adapter.notifyDataSetChanged();
+                            break;
                         default:
                     }
                 }
@@ -168,13 +225,6 @@ public class ContentFragment extends Fragment {
         folderList.add(new ContentItem("Audios",ContentType.Folder));
     }
 
-
-    private void initImageItemList() {
-        imageItemList = new ArrayList<>();
-        imageItemList.add(new ContentItem("new Images",ContentType.File));
-        imageItemList.add(new ContentItem("Videos",ContentType.File));
-        imageItemList.add(new ContentItem("Audios",ContentType.File));
-    }
 
     public class ContentListViewAdapter extends BaseAdapter{
 
@@ -228,15 +278,18 @@ public class ContentFragment extends Fragment {
 
             ContentItem contentItem = contentItemList.get(position);
 
-            if(contentItem.getType().equals(ContentType.File))
+            if(!contentItem.getType().equals(ContentType.Folder))
             {
                 holder.icon.setImageBitmap(imageIcon);
                 holder.contentName.setText(contentItem.getName());
 
-                Long imageId =contentItem.getId();
-                holder.icon.setTag(imageId);
-                ContentResolver contentResolver = getActivity().getContentResolver();
-                new ImageLoader().getThumbnailByThread(contentResolver,holder.icon,imageId,contentItem);
+                if(contentItem.getType().equals(ContentType.Image))
+                {
+                    Long id =contentItem.getId();
+                    holder.icon.setTag(id);
+                    ContentResolver contentResolver = getActivity().getContentResolver();
+                    new ImageLoader().getThumbnailByThread(contentResolver,holder.icon, id,contentItem);
+                }
 
                 holder.arrowIcon.setVisibility(View.GONE);
 
@@ -264,9 +317,13 @@ public class ContentFragment extends Fragment {
      * @param projection:要查询的字段
      * @param orderBy：排序方式
      */
-    public List<ContentItem> getContentProvider(Uri uri, String[] projection, String orderBy) {
-        List<HashMap<String, String>> listImage = new ArrayList<HashMap<String, String>>();
+    public List<ContentItem> getContentProvider(Uri uri, String[] projection, String orderBy,ContentType contentType) {
+
+        List<ContentItem> listContentItem = new ArrayList<>();
+
         Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, orderBy);
+
+        ContentItem contentItem;
         if (null == cursor) {
             return null;
         }
@@ -276,18 +333,16 @@ public class ContentFragment extends Fragment {
                 map.put(projection[i], cursor.getString(i));
                 Log.i("content_item",projection[i] + ":::::::" + cursor.getString(i) + "\n");
             }
-            listImage.add(map);
-        }
-        List<ContentItem> listContentItem = new ArrayList<>();
-        ContentItem contentItem;
-        for (HashMap<String,String> hashmap: listImage
-             ) {
-            String displayName = hashmap.get(projection[1]);
-            contentItem = new ContentItem(displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()),Long.parseLong(hashmap.get(projection[0])),null,ContentType.File,hashmap.get(projection[2])) ;
-           Log.i("display_name",displayName);
-           Log.i("display_name_substring",displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()));
+
+            String displayName = map.get(projection[1]);
+            contentItem = new ContentItem(displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()),Long.parseLong(map.get(projection[0])),null,contentType,map.get(projection[2])) ;
+            Log.i("display_name",displayName);
+            Log.i("display_name_substring",displayName.substring(displayName.lastIndexOf("/")+1,displayName.length()));
+
             listContentItem.add(contentItem);
+
         }
+        cursor.close();
         return listContentItem;
     }
 

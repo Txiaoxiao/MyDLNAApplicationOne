@@ -6,5 +6,7 @@ package com.example.asus.mydlnaapplicationone;
 
 enum ContentType {
     Folder,
-    File
+    Image,
+    Video,
+    Audio
 }

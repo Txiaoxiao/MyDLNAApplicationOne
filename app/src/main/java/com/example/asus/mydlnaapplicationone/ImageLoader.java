@@ -35,7 +35,7 @@ public class ImageLoader {
             @Override
             public void run() {
                 super.run();
-                Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(contentResolver,imageId, MediaStore.Images.Thumbnails.MICRO_KIND,null);
+                Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(contentResolver,imageId, MediaStore.Images.Thumbnails.MINI_KIND,null);
                 contentItem.setThumbnail(thumbnail);
                Message message = Message.obtain();
                 message.obj = thumbnail;
