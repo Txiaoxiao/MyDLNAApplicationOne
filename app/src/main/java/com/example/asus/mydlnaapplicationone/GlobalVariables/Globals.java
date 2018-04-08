@@ -1,6 +1,7 @@
-package GlobalVariables;
+package com.example.asus.mydlnaapplicationone.GlobalVariables;
 
 import com.example.asus.mydlnaapplicationone.Device;
+import com.example.asus.mydlnaapplicationone.MediaServer.VideoServer;
 
 /**
  * Created by asus on 2018/3/29.
@@ -21,6 +22,16 @@ public class Globals {
     }
 
     private Device selectedDevice;
+
+    private VideoServer mediaServer = null;
+
+    public VideoServer getMediaServer() {
+        return mediaServer;
+    }
+
+    public void setMediaServer(VideoServer mediaServer) {
+        this.mediaServer = mediaServer;
+    }
 
     private Globals()
     {}

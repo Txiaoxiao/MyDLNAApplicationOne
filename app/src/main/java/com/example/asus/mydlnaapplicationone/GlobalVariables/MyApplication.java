@@ -1,4 +1,4 @@
-package GlobalVariables;
+package com.example.asus.mydlnaapplicationone.GlobalVariables;
 
 import android.app.Application;
 

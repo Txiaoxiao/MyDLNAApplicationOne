@@ -7,7 +7,7 @@ package com.example.asus.mydlnaapplicationone.SSDP;
 public class SsdpConstants {
 
 
-    public static String RemoteDeviceName ="device 1";
+    public static String RemoteDeviceName =" ";
 
     public static final int RECEIVE_PORT = 10002;
 

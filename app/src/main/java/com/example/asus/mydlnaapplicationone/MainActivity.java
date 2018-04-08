@@ -1,6 +1,5 @@
 package com.example.asus.mydlnaapplicationone;
 
-import android.app.FragmentManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,8 +14,7 @@ import com.example.asus.mydlnaapplicationone.Adapters.ViewPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import GlobalVariables.Globals;
-import GlobalVariables.MyApplication;
+import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_content:
                     viewPager.setCurrentItem(1);
                     return true;
-                case R.id.navigation_console:
+               /* case R.id.navigation_console:
                     viewPager.setCurrentItem(2);
-                    return true;
+                    return true;*/
                 case R.id.navigation_setting:
-                    viewPager.setCurrentItem(3);
+                    viewPager.setCurrentItem(2);
                     return true;
             }
             return false;
@@ -100,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         listFragment = new ArrayList<>();
         listFragment.add(new DeviceFragment());
         listFragment.add(new ContentFragment());
-        listFragment.add(new ConsoleFragment());
+        //listFragment.add(new ConsoleFragment());
         listFragment.add(new SettingFragment());
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),this,listFragment);

@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class ConsoleFragment extends Fragment {
+/*public class ConsoleFragment extends Fragment {
 
 
     public ConsoleFragment() {
@@ -24,4 +24,4 @@ public class ConsoleFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_console, container, false);
     }
 
-}
+}*/

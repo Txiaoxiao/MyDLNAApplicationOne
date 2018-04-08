@@ -4,7 +4,7 @@ package com.example.asus.mydlnaapplicationone;
  * Created by asus on 2018/3/20.
  */
 
-enum ContentType {
+public enum ContentType {
     Folder,
     Image,
     Video,

@@ -2,6 +2,7 @@ package com.example.asus.mydlnaapplicationone;
 
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -25,7 +26,6 @@ public class ImageLoader {
         }
     };
 
-
     public void getThumbnailByThread(final ContentResolver contentResolver, final ImageView imageView, final Long imageId,final ContentItem contentItem){
 
         mImageView=imageView;
@@ -36,17 +36,34 @@ public class ImageLoader {
             public void run() {
                 super.run();
                 Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(contentResolver,imageId, MediaStore.Images.Thumbnails.MINI_KIND,null);
-                contentItem.setThumbnail(thumbnail);
-               Message message = Message.obtain();
-                message.obj = thumbnail;
-                handler.sendMessage(message);
+                handleMessage(contentItem,thumbnail);
             }
         }.start();
     }
 
-    public void loadImage()//
+    public void getVideoThumbnail(final String path,final ImageView imageView,final Long videoId,final ContentItem contentItem)//
     {
+        mImageView = imageView;
+        mImageId = videoId;
 
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path, MediaStore.Images.Thumbnails.MICRO_KIND);
+                handleMessage(contentItem,bitmap);
+
+            }
+        }.start();
+
+    }
+
+    public void handleMessage(ContentItem contentItem,Bitmap bitmap)
+    {
+        contentItem.setThumbnail(bitmap);
+        Message message = Message.obtain();
+        message.obj = bitmap;
+        handler.sendMessage(message);
     }
 
 }
