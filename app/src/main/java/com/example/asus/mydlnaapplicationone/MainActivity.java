@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     ViewPager viewPager;
     BottomNavigationView navigation;
     List<Fragment> listFragment;
-    ImagesFragment imageFragment;
 
     private ViewPager.OnPageChangeListener mOnPageChangeListener
             = new ViewPager.OnPageChangeListener(){

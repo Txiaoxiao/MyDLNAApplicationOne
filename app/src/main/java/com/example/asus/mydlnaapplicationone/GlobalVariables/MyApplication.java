@@ -12,6 +12,7 @@ import java.util.List;
 
 public class MyApplication extends Application {
 
+
     public static Device selectedDevice;
     public static List<Device> deviceList;
 

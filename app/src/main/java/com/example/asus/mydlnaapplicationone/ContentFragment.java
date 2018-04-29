@@ -31,6 +31,11 @@ import com.example.asus.mydlnaapplicationone.MediaServer.VideoServer;
 import com.example.asus.mydlnaapplicationone.SSDP.SsdpConstants;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -144,13 +149,24 @@ public class ContentFragment extends Fragment {
                     final ContentType contentType = contentItem.getType();
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("SendFileTo: " + SsdpConstants.RemoteDeviceName);
+                    builder.setTitle("   ");
                     builder.setView(customDialogSendFile);
                     builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //发送file的url到远程设备
                             //开一个线程发送url，并监听客户端的获取请求。serverSocket？
+
+                            if(SsdpConstants.selectedDevice==null)
+                            {
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle("Attention:")
+                                        .setMessage("please select a remote device first!")
+                                        .setPositiveButton("OK", null)
+                                        .show();
+                               return;
+                            }
+                            responseToPC();//通知pc发送了媒体文件
 
                             if(width == 0 || height ==0)
                             {
@@ -181,12 +197,6 @@ public class ContentFragment extends Fragment {
 
 
                             // new multiThreadServerAsyncTask().execute();
-
-                            new AlertDialog.Builder(getActivity())
-                                    .setTitle("Access Address:")
-                                    .setMessage(Utils.getLocalIpAddress(getActivity()) + ":" + httpServerPort)
-                                    .setPositiveButton("Close", null)
-                                    .show();
                         }
                     });
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -197,9 +207,6 @@ public class ContentFragment extends Fragment {
                     });
 
                     builder.create().show();
-
-                    /*Button buttonCancel = customDialogSendFile.findViewById(R.id.button_cancel);
-                    Button buttonSend = customDialogSendFile.findViewById(R.id.button_send);*/
 
 
                 } else {  //点击文件夹时的操作
@@ -267,6 +274,10 @@ public class ContentFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void responseToPC() {
+        new ResponseToPCAsyncTask().execute();
     }
 
     private void initFolderList() {
@@ -412,6 +423,44 @@ public class ContentFragment extends Fragment {
         return listContentItem;
     }
 
+    private class ResponseToPCAsyncTask extends AsyncTask{
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            new AlertDialog.Builder(getActivity())
+                    .setMessage("Send successfully to: \n"+SsdpConstants.selectedDevice.getName())
+                    .setPositiveButton("OK ",null)
+                    .show();
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+
+            InetAddress address = null;
+            DatagramSocket socket =null;
+
+            try {
+                address = SsdpConstants.selectedDevice.getDeviceInetAddress();
+                int port = 10003;
+                byte data[] = "media file".getBytes();
+                DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+                socket = new DatagramSocket();
+                socket.send(packet);
+
+            } catch (UnknownHostException e) {
+                Log.e("error","unknownHostException in ResponseToPCAsyncTask ");
+
+            }catch (SocketException e) {
+                Log.e("error","SocketException in ResponseToPCAsyncTask ");
+
+            } catch (IOException e) {
+                Log.e("error","IOException  in ResponseToPCAsyncTask ");
+            }
+
+            return objects;
+        }
+    }
 
     private class multiThreadServerAsyncTask extends AsyncTask {
         @Override

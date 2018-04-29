@@ -10,4 +10,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="button_cancel">Cancel</string>
     <string name="title_send">Send</string>
+    <string name="title_identityverification">Identity Verification</string>
+    <string name="connect">Connect</string>
 </resources>

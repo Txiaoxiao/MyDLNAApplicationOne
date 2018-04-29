@@ -1,5 +1,7 @@
 package com.example.asus.mydlnaapplicationone.SSDP;
 
+import com.example.asus.mydlnaapplicationone.Device;
+
 /**
  * Created by asus on 2018/3/10.
  */
@@ -7,10 +9,13 @@ package com.example.asus.mydlnaapplicationone.SSDP;
 public class SsdpConstants {
 
 
+    public static final String IDENTIFYVERIFICATION_CANCEL ="CANCEL";
+
     public static String RemoteDeviceName =" ";
 
     public static final int RECEIVE_PORT = 10002;
 
+    public static Device selectedDevice= null;
 
 /* New line definition */
 
@@ -18,7 +23,7 @@ public class SsdpConstants {
 
     public static final String ADDRESS = "239.255.255.250";
 
-    public static final int SEND_PORT = 1900;//need to change to 10002.
+    public static final int SEND_PORT = 1900;
 
 /* Definitions of start line */
 

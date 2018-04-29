@@ -32,7 +32,7 @@ public class DeviceListViewAdapter extends BaseAdapter {
 
 
 
-    public DeviceListViewAdapter(Activity context, List<Device> deviceList)
+    public  DeviceListViewAdapter(Activity context, List<Device> deviceList)
     {
         super();
         this.context = context;
@@ -63,8 +63,9 @@ public class DeviceListViewAdapter extends BaseAdapter {
             holder= new DeviceViewHolder();
             LayoutInflater inflater =context.getLayoutInflater();
             convertView=inflater.inflate(R.layout.device_item,null);
-            holder.textView =convertView.findViewById(R.id.textview_device_item);
+            holder.deviceNameTextView =convertView.findViewById(R.id.textview_device_item);
             holder.checkBox= convertView.findViewById(R.id.checkbox_device_item);
+            holder.deviceIpTextView=convertView.findViewById(R.id.textview_deviceitem_ip);
             convertView.setTag(holder);
         }else
         {
@@ -72,7 +73,8 @@ public class DeviceListViewAdapter extends BaseAdapter {
         }
 
         Device device = deviceList.get(position);
-        holder.textView.setText(device.getName());
+        holder.deviceNameTextView.setText(device.getName());
+        holder.deviceIpTextView.setText(device.getServer()+"  "+device.getDeviceInetAddress().toString().substring(1));
         if(device.equals(Globals.getInstance().getSelectedDevice()))
         {
             holder.checkBox.setChecked(true);

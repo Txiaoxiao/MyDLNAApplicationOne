@@ -60,7 +60,7 @@ public class VideoServer extends NanoHTTPD {
         }
     }
 
-    public StringBuilder newAudioStringBuilder()
+    private StringBuilder newAudioStringBuilder()
     {
        /* <!DOCTYPE HTML>
 <html>
@@ -84,7 +84,8 @@ public class VideoServer extends NanoHTTPD {
 
         return builder;
     }
-    public StringBuilder newVideoStringBuilder()
+
+    private StringBuilder newVideoStringBuilder()
     {
         while(mVideoWidth>1500 && mVideoHeight>700)
         {
@@ -106,7 +107,7 @@ public class VideoServer extends NanoHTTPD {
         return builder;
     }
 
-    public StringBuilder newImageStringBuilder()
+    private StringBuilder newImageStringBuilder()
     {
         while(mVideoWidth>1500 && mVideoHeight>700)
         {

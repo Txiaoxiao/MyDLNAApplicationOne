@@ -109,7 +109,10 @@ public class DeviceSearch {
         SsdpMessage ssdpMessage = SsdpMessage.toMessage(s);
        // if (ssdpMessage.getType().equals(SsdpMessageType.RESPONSE)) {
             // URL url = new URL(ssdpMessage.getHeader("LOCATION"));
-            devices.add(new Device(ssdpMessage.getHeader("USN")));
+        Device device = new Device(ssdpMessage.getHeader("USN"));
+        device.setDeviceInetAddress(dp.getAddress());
+        devices.add(device);
+
        // }
         return devices;
     }
@@ -122,7 +125,7 @@ public class DeviceSearch {
 
         try {
             sock = new SsdpSocket();
-            sock.send(searchContentDirectory.toString(), activity);
+            sock.send(searchContentDirectory.toString());
         } catch (IOException e) {
             Log.e("error", "sendSeaerchMessage error!");
         }

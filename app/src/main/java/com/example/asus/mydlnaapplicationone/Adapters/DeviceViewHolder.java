@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 public class DeviceViewHolder {
 
-        public TextView textView;
+        public TextView deviceNameTextView;
+        public TextView deviceIpTextView;
         public CheckBox checkBox;
 }

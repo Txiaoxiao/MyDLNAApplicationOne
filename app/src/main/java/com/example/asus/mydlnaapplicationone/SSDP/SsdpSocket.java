@@ -15,9 +15,6 @@ import java.net.SocketAddress;
 
 public class SsdpSocket {
 
-
-    SocketAddress mSSDPMulticastGroup = null;
-
     MulticastSocket mSSDPSocket = null;
 
     InetAddress broadcastgroup = null;
@@ -34,7 +31,7 @@ public class SsdpSocket {
 
 	/* send SSDP packet */
 
-    public void send(String data, Context context) throws IOException {
+    public void send(String data) throws IOException {
 
         if (broadcastgroup != null && mSSDPSocket!=null) {
 
@@ -45,14 +42,12 @@ public class SsdpSocket {
 
                 mSSDPSocket.send(dp);
 
-                new AlertDialog.Builder(context).setTitle("Send").setMessage("send successul!")
-                        .setPositiveButton("return", null).show();
+
 
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 throw  new IOException("send dp failed!");
-                /*new AlertDialog.Builder(context).setTitle("send failed").setMessage(e.getMessage().toString())
-                        .setPositiveButton("return", null).show();*/
+
             }
         } else {
             throw new NullPointerException("null broadcastgroup or mssdpsocket");
