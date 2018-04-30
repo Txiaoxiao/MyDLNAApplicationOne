@@ -20,10 +20,16 @@ import com.example.asus.mydlnaapplicationone.SSDP.SsdpMessage;
 import com.example.asus.mydlnaapplicationone.SSDP.SsdpSearchMessage;
 import com.example.asus.mydlnaapplicationone.SSDP.SsdpSocket;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +66,14 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                if(SsdpConstants.selectedDevice == (deviceList.get(position)))
+                {
+                    SsdpConstants.selectedDevice = null;
+                    SsdpConstants.RemoteDeviceName=null;
+                    Globals.getInstance().setSelectedDevice(null);
+                    listAdapter.notifyDataSetChanged();
+                    return;
+                }
                 //身份验证
                 clickPosition =position;
 
@@ -206,20 +220,49 @@ public class DeviceFragment extends Fragment {
         @Override
         protected Integer doInBackground(String... strings) {
             int result =Integer.parseInt(strings[0]); // -1 means failed to connected.
-                              // -2 means error password.
+                                                        // -2 means error password.
+            String password = strings[1];
+            int position = result;
 
-            //与远端设备建立tcp连接，验证密码
-
-
-
+            //TODO:与远端设备建立tcp连接，验证密码
+            InetAddress serverAddress = deviceList.get(position).getDeviceInetAddress();
 
             try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Socket socket = new Socket(serverAddress,SsdpConstants.CONNECTING_PORT);//port:10002
+                PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
+                out.print(password+"\n");
+                out.flush();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String connectingResult = reader.readLine();// 0 for error password. 1 for connect successfully.
+                if(Integer.parseInt(connectingResult) == 0)
+                {
+                    result = -2;//error password
+                    out.close();
+                    reader.close();
+                    socket.close();
+
+                }
+                else if(Integer.parseInt(connectingResult) == 1)
+                {
+
+                }
+                else
+                {
+                    result =-1;//failed to connect.
+                    out.close();
+                    reader.close();
+                    socket.close();
+                }
+
+            } catch (IOException e) {
+               result = -1;
             }
 
-
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
             return result;
         }
 
@@ -236,13 +279,13 @@ public class DeviceFragment extends Fragment {
             spotsDialog.dismiss();
             if(position == -1)
             {
-                Toast.makeText(getActivity(),"Connected to Device Failed.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(),"Connected to Device Failed.",Toast.LENGTH_LONG).show();
             }else if(position == -2)
             {
-                Toast.makeText(getActivity(),"Error Pairing Code.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(),"Error Pairing Code.",Toast.LENGTH_LONG).show();
             }
             else {
-                Toast.makeText(getActivity(),"Connect successfully.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(),"Connect successfully.",Toast.LENGTH_LONG).show();
 
                 Globals.getInstance().setSelectedDevice(deviceList.get(position));
                 SsdpConstants.RemoteDeviceName = deviceList.get(position).getName();

@@ -15,6 +15,8 @@ public class SsdpConstants {
 
     public static final int RECEIVE_PORT = 10002;
 
+    public static final int CONNECTING_PORT = 10003;
+
     public static Device selectedDevice= null;
 
 /* New line definition */
