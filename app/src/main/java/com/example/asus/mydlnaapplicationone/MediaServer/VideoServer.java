@@ -24,8 +24,8 @@ public class VideoServer extends NanoHTTPD {
 
     public VideoServer(String filepath,int width,int height,int port,ContentType contentType) {
         super(port);
-            mVideoWidth  = width;
-            mVideoHeight = height;
+        mVideoWidth  = width;
+        mVideoHeight = height;
         mVideoFilePath = filepath;
         mContentType= contentType;
     }
@@ -62,17 +62,6 @@ public class VideoServer extends NanoHTTPD {
 
     private StringBuilder newAudioStringBuilder()
     {
-       /* <!DOCTYPE HTML>
-<html>
-<body>
-
-<audio controls="controls">
-  <source src="/i/song.mp3" type="audio/mpeg" />
-            Your browser does not support the audio element.
-            </audio>
-
-</body>
-</html>*/
         StringBuilder builder = new StringBuilder();
         builder.append("<html><body>");
         builder.append("<audio controls autoplay>");
@@ -129,7 +118,11 @@ public class VideoServer extends NanoHTTPD {
     public Response responseVideoStream(IHTTPSession session) {
         try {
             FileInputStream fis = new FileInputStream(mVideoFilePath);
-            return new NanoHTTPD.Response(Status.OK, "video/mp4", fis);
+            String mimeType;
+            if(mContentType.equals(ContentType.Video)){mimeType="video/mp4";}
+            else if(mContentType.equals(ContentType.Image)){mimeType="image/jpg";}
+            else {mimeType="audio/mp3";}
+            return new NanoHTTPD.Response(Status.OK, mimeType, fis);
         } 
         catch (FileNotFoundException e) {        
             e.printStackTrace();

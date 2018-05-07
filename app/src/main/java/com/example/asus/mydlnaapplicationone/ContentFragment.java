@@ -154,7 +154,7 @@ public class ContentFragment extends Fragment {
                     builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            //发送file的url到远程设备
+                            //发送file的url到远程设备Send
                             //开一个线程发送url，并监听客户端的获取请求。serverSocket？
 
                             if(SsdpConstants.selectedDevice==null)
@@ -166,7 +166,6 @@ public class ContentFragment extends Fragment {
                                         .show();
                                return;
                             }
-                            responseToPC();//通知pc发送了媒体文件
 
                             if(width == 0 || height ==0)
                             {
@@ -195,6 +194,7 @@ public class ContentFragment extends Fragment {
                                         .show();
                             }
 
+                            responseToPC();//通知pc发送了媒体文件
 
                             // new multiThreadServerAsyncTask().execute();
                         }
@@ -429,7 +429,7 @@ public class ContentFragment extends Fragment {
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             new AlertDialog.Builder(getActivity())
-                    .setMessage("Send successfully to: \n"+SsdpConstants.selectedDevice.getName())
+                    .setMessage("Visit Address: \n"+Utils.pathToUrl(getActivity(),path,httpServerPort))
                     .setPositiveButton("OK ",null)
                     .show();
         }
@@ -443,7 +443,7 @@ public class ContentFragment extends Fragment {
             try {
                 address = SsdpConstants.selectedDevice.getDeviceInetAddress();
                 int port = 10003;
-                byte data[] = "media file".getBytes();
+                byte data[] = Utils.pathToUrl(getActivity(),path,httpServerPort).getBytes("utf-8");
                 DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
                 socket = new DatagramSocket();
                 socket.send(packet);

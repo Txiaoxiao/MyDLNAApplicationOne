@@ -64,7 +64,7 @@ public class DeviceFragment extends Fragment {
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 
 
                 if(SsdpConstants.selectedDevice == (deviceList.get(position)))
                 {

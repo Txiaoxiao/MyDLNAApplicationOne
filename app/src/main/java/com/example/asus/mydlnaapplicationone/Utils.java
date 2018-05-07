@@ -30,6 +30,11 @@ public  class Utils {
         return bitmap;
     }
 
+    public static String pathToUrl(Context context, String path,int port)
+    {
+        return "http:/"+getLocalIpAddress(context)+":"+port+path;
+    }
+
     public static String getLocalIpAddress(Context context) {
         WifiManager wifiManager=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
