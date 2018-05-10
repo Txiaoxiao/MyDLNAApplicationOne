@@ -161,7 +161,7 @@ public class ContentFragment extends Fragment {
                             {
                                 new AlertDialog.Builder(getActivity())
                                         .setTitle("Attention:")
-                                        .setMessage("please select a remote device first!")
+                                        .setMessage("please select a remote fragment_device first!")
                                         .setPositiveButton("OK", null)
                                         .show();
                                return;
@@ -180,7 +180,7 @@ public class ContentFragment extends Fragment {
                                 mediaserver.stop();
                             }
 
-                            mediaserver = new VideoServer(path, width, height, httpServerPort,contentType);
+                            mediaserver = new VideoServer(httpServerPort,imageItemList,videoItemList,audioItemList);
                             Globals.getInstance().setMediaServer(mediaserver);
 
                             try {

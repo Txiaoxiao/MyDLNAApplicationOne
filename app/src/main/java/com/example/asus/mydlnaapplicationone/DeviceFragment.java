@@ -1,14 +1,19 @@
 package com.example.asus.mydlnaapplicationone;
 
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -31,6 +36,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
@@ -43,6 +49,7 @@ import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
 public class DeviceFragment extends Fragment {
 
     ListView listView;
+    FloatingActionButton refershButton;
     DeviceListViewAdapter listAdapter;
     List<Device> deviceList;
     int clickPosition;
@@ -51,17 +58,35 @@ public class DeviceFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.device,container,false);
+        View view = inflater.inflate(R.layout.fragment_device,container,false);
 
         listView = view.findViewById(R.id.listview_availableDeviceList);
+        refershButton = view.findViewById(R.id.floatingactionbutton_refresh);
         deviceList = new ArrayList<>();
 
+        ObjectAnimator animator= ObjectAnimator.ofFloat(refershButton,"rotation",0,360);
+        animator.setRepeatCount(2);
+        animator.setDuration(1000);
+        animator.start();
         searchRemoteDevices();
-       /* listAdapter = new DeviceListViewAdapter(getActivity(),deviceList);
-        listView.setAdapter(listAdapter);
-*/
-       // new DeviceSearch().getDevicesByThread(getActivity(),listAdapter,listView,deviceList);
 
+        refershButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!(deviceList==null))
+                {
+                    deviceList.clear();
+                    listAdapter.notifyDataSetChanged();
+                }
+
+                ObjectAnimator animator= ObjectAnimator.ofFloat(view,"rotation",0,360);
+                animator.setRepeatCount(2);
+                animator.setDuration(1000);
+                animator.start();
+                searchRemoteDevices();
+            }
+        });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 
@@ -125,8 +150,9 @@ public class DeviceFragment extends Fragment {
         @Override
       protected List<Device> doInBackground(Void... voids) {
             try {
+                List<Device> devices = getRemoteDevices();
                 deviceList.clear();
-                deviceList = getRemoteDevices();
+                deviceList.addAll(devices);
             } catch (IOException e) {
                 Log.e("error","getRemoteDevices");
             }
@@ -136,8 +162,12 @@ public class DeviceFragment extends Fragment {
       @Override
       protected void onPostExecute(List<Device> deviceList) {
           super.onPostExecute(deviceList);
-           listAdapter = new DeviceListViewAdapter(getActivity(),deviceList);
+          listAdapter = new DeviceListViewAdapter(getActivity(),deviceList);
           listView.setAdapter(listAdapter);
+          if(deviceList.size()==0)
+          {
+              Toast.makeText(getContext()," No Devices can be found near.",Toast.LENGTH_LONG).show();
+          }
       }
   }
 
@@ -158,44 +188,45 @@ public class DeviceFragment extends Fragment {
         List<Device> devices = new ArrayList<>();
 
         DatagramSocket datagramSocket = new DatagramSocket(SsdpConstants.RECEIVE_PORT);//10002
+        datagramSocket.setSoTimeout(1000);
         byte[] buffer = new byte[1024];
-
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
 
-        datagramSocket.receive(datagramPacket);
-        Log.i("receive","receive response message successful");
-        String s = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
-        InetAddress remoteAddress =datagramPacket.getAddress();
-        datagramSocket.close();
+        Date before = new Date();
+        Date now = new Date();
+        long  t=(now.getTime()-before.getTime());
+        while(t<3000)
+        {
+            try {
+                datagramSocket.receive(datagramPacket);
+            }catch (Exception e)
+            {
+                now = new Date();
+                t=(now.getTime()-before.getTime());
+                continue;
+            }
+            Log.i("receive","receive response message successful");
+            String s = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
+            InetAddress remoteAddress =datagramPacket.getAddress();
 
-
-        // TODO: only choose NOTIFY and RESPONSE packet, get LOCATION form s,and get DDD from the url
-
-        SsdpMessage ssdpMessage = SsdpMessage.toMessage(s);
-        // if (ssdpMessage.getType().equals(SsdpMessageType.RESPONSE)) {
-        // URL url = new URL(ssdpMessage.getHeader("LOCATION"));
-        Device device = new Device(ssdpMessage.getHeader("NAME"));
-        device.setDeviceInetAddress(remoteAddress);
-        device.setServer(ssdpMessage.getHeader("SERVER"));
-        devices.add(device);
-        // }
-        return devices;
-       /* ServerSocket socket = new ServerSocket(10002);
-
-        final Socket clientSocket = socket.accept();
-        InputStream inputStream = new DataInputStream(clientSocket.getInputStream());
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int n;
-        while((n=inputStream.read(buffer))!=-1){
-            outputStream.write(buffer,0,n);
+            // TODO: only choose NOTIFY and RESPONSE packet, get LOCATION form s,and get DDD from the url
+            SsdpMessage ssdpMessage = SsdpMessage.toMessage(s);
+            Device device = new Device(ssdpMessage.getHeader("NAME"));
+            device.setDeviceInetAddress(remoteAddress);
+            device.setServer(ssdpMessage.getHeader("SERVER"));
+            if(devices.contains(device))
+            {
+                continue;
+            }
+            else {
+                devices.add(device);
+            }
+            now = new Date();
+            t=(now.getTime()-before.getTime());
         }
-        String s = new String(outputStream.toByteArray());
-        clientSocket.shutdownInput();
-        outputStream.close();
-*/
 
-
+        datagramSocket.close();
+        return devices;
     }
 
     private void sendSearchMessage() {

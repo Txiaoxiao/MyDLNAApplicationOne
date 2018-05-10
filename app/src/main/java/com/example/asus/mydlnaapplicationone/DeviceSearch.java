@@ -41,13 +41,13 @@ public class DeviceSearch {
             listview.setAdapter(adapter);*/
 
             adapter.getDeviceList().clear();
-            adapter.getDeviceList().add(new Device("device name"));
+            adapter.getDeviceList().add(new Device("fragment_device name"));
 
             /*List<Device> devices = (List<Device>)msg.obj;
 
-            for (Device device:devices
+            for (Device fragment_device:devices
                  ) {
-                adapter.getDeviceList().add(new Device(device.getName()));
+                adapter.getDeviceList().add(new Device(fragment_device.getName()));
             }*/
 
             adapter.notifyDataSetChanged();

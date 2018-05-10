@@ -4,8 +4,6 @@
     <color name="colorPrimaryDark">#ff000000</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorBlack">#ff000000</color>
-    <color name="colorWhite">#ffff</color>
-    <color name="colorDeviceListBackground">#ffffff</color>
     <color name="colorListviewDivider">#555555</color>
     <color name="colorDeviceIp">#555555</color>
     <color name="spots_dialog_color">@android:color/holo_blue_dark</color>

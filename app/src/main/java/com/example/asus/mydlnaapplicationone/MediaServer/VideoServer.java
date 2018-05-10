@@ -1,33 +1,29 @@
 package com.example.asus.mydlnaapplicationone.MediaServer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import android.util.Log;
 
-import com.example.asus.mydlnaapplicationone.ContentType;
+import com.example.asus.mydlnaapplicationone.ContentItem;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.List;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class VideoServer extends NanoHTTPD {
     
-    public static final int DEFAULT_SERVER_PORT = 8080;
     public static final String TAG = VideoServer.class.getSimpleName();
-    
-    private static final String REQUEST_ROOT = "/";       
-    
-    private String mVideoFilePath;
-    private int mVideoWidth  = 0;
-    private int mVideoHeight = 0;
-    private ContentType mContentType;
+    private static final String REQUEST_ROOT = "/";
+    List<ContentItem> imageList;
+    List<ContentItem> videoList;
+    List<ContentItem> audioList;
 
-    public VideoServer(String filepath,int width,int height,int port,ContentType contentType) {
+    public VideoServer(int port, List<ContentItem> imageList,List<ContentItem> videoList,List<ContentItem> audioList) {
         super(port);
-        mVideoWidth  = width;
-        mVideoHeight = height;
-        mVideoFilePath = filepath;
-        mContentType= contentType;
+        this.imageList = imageList;
+        this.videoList = videoList;
+        this.audioList = audioList;
     }
     
     @Override
@@ -36,28 +32,22 @@ public class VideoServer extends NanoHTTPD {
         if(REQUEST_ROOT.equals(session.getUri())) {
             return responseRootPage(session);
         }
-        else if(mVideoFilePath.equals(session.getUri())) {
+        else  {
             return responseVideoStream(session);
         }
-        return response404(session,session.getUri());
     }
 
     public Response responseRootPage(IHTTPSession session) {
-        File file = new File(mVideoFilePath);
-        if(!file.exists()) {
-            return response404(session,mVideoFilePath);
+        try {
+            FileInputStream fis = new FileInputStream("storage/emulated/0/test.html");
+            String mimeType=getMineType(session.getUri());
+            return new NanoHTTPD.Response(Status.OK, "text/html", fis);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return response404(session, "storage/emulated/0/test.html");
         }
 
-        if(mContentType.equals(ContentType.Video))
-        {
-            return  new Response(newVideoStringBuilder().toString());
-        }else if (mContentType.equals(ContentType.Image))
-        {
-            return new Response(newImageStringBuilder().toString());
-        }else
-        {
-            return new Response(newAudioStringBuilder().toString());
-        }
     }
 
     private StringBuilder newAudioStringBuilder()
@@ -65,7 +55,6 @@ public class VideoServer extends NanoHTTPD {
         StringBuilder builder = new StringBuilder();
         builder.append("<html><body>");
         builder.append("<audio controls autoplay>");
-        builder.append("<source src="+getQuotaStr(mVideoFilePath)+" ");
         builder.append("type="+getQuotaStr("audio/mpeg")+">");
         builder.append("Your browser doestn't support HTML5");
         builder.append("</audio>");
@@ -74,62 +63,28 @@ public class VideoServer extends NanoHTTPD {
         return builder;
     }
 
-    private StringBuilder newVideoStringBuilder()
-    {
-        while(mVideoWidth>1500 && mVideoHeight>700)
-        {
-            mVideoWidth  = (int)(mVideoWidth*0.75);
-            mVideoHeight = (int)(mVideoHeight*0.75);
-        }
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("<!DOCTYPE html><html><body>");
-        builder.append("<video ");
-        builder.append("width="+getQuotaStr(String.valueOf(mVideoWidth))+" ");
-        builder.append("height="+getQuotaStr(String.valueOf(mVideoHeight))+" ");
-        builder.append("controls autoplay>");
-        builder.append("<source src="+getQuotaStr(mVideoFilePath)+" ");
-        builder.append("type="+getQuotaStr("video/mp4")+">");
-        builder.append("Your browser doestn't support HTML5");
-        builder.append("</video>");
-        builder.append("</body></html>\n");
-        return builder;
-    }
-
-    private StringBuilder newImageStringBuilder()
-    {
-        while(mVideoWidth>1500 && mVideoHeight>700)
-        {
-            mVideoWidth  = (int)(mVideoWidth*0.75);
-            mVideoHeight = (int)(mVideoHeight*0.75);
-        }
-        StringBuilder builder = new StringBuilder();
-        builder.append("<html><body>");
-        builder.append("<img ");
-        builder.append("width="+getQuotaStr(String.valueOf(mVideoWidth))+" ");
-        builder.append("height="+getQuotaStr(String.valueOf(mVideoHeight))+" ");
-        builder.append("src="+getQuotaStr(mVideoFilePath)+">");
-        builder.append("</body></html>\n");
-
-        return builder;
-    }
-
     
     public Response responseVideoStream(IHTTPSession session) {
         try {
-            FileInputStream fis = new FileInputStream(mVideoFilePath);
-            String mimeType;
-            if(mContentType.equals(ContentType.Video)){mimeType="video/mp4";}
+            FileInputStream fis = new FileInputStream(session.getUri());
+            String mimeType=getMineType(session.getUri());
+            /*if(mContentType.equals(ContentType.Video)){mimeType="video/mp4";}
             else if(mContentType.equals(ContentType.Image)){mimeType="image/jpg";}
-            else {mimeType="audio/mp3";}
+            else {mimeType="audio/mp3";}*/
             return new NanoHTTPD.Response(Status.OK, mimeType, fis);
         } 
         catch (FileNotFoundException e) {        
             e.printStackTrace();
-            return response404(session,mVideoFilePath);
+            return response404(session,session.getUri());
         } 
     }
-    
+
+    private String getMineType(String uri) {
+        String miniType="video/mp4";
+        //TODO: set minetype according to .jpg/.png/.mp3/.mp4
+        return miniType;
+    }
+
     public Response response404(IHTTPSession session,String url) {
         StringBuilder builder = new StringBuilder();
         builder.append("<!DOCTYPE html><html><body>");        

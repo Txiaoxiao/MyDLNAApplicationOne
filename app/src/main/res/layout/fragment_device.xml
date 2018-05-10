@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListView
+        android:id="@+id/listview_availableDeviceList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:listSelector="@drawable/device_listview_selector"
+        android:layoutAnimation="@anim/list_anim_layout"/>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingactionbutton_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_anchor="@id/listview_availableDeviceList"
+        app:layout_anchorGravity="bottom|right|end"
+        android:elevation="10dp"
+        app:pressedTranslationZ="5dp"
+        app:fabSize="normal"
+        android:src="@drawable/ic_refresh"
+        />
+
+</android.support.design.widget.CoordinatorLayout>

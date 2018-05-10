@@ -27,11 +27,6 @@ public class DeviceListViewAdapter extends BaseAdapter {
         return deviceList;
     }
 
-    public void setDeviceList(List<Device> deviceList) {
-        this.deviceList = deviceList;
-    }
-
-
 
     public  DeviceListViewAdapter(Activity context, List<Device> deviceList)
     {
