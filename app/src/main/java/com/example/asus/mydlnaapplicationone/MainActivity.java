@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
                 //position is current page
                 //call this method when finish scrolling.
 
+
                 navigation.getMenu().getItem(position).setChecked(true);
             }
 
@@ -87,10 +88,17 @@ public class MainActivity extends AppCompatActivity {
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
 
         initViewPager();
+
+        //加载媒体库，开启媒体服务器。
+        LoadMediaFile();
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         viewPager.setOnPageChangeListener(mOnPageChangeListener);
     }
 
+    private void LoadMediaFile() {
+
+    }
 
 
     private void initViewPager() {

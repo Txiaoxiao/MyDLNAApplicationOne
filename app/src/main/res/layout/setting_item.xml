@@ -1,21 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:padding="4dp"
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/textview_setting_title"
+    <ImageView
+        android:id="@+id/imageview_setting_item"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:paddingLeft="10dp"
+        android:layout_weight="3"/>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:textSize="22dp"
-        android:textColor="@color/colorBlack"/>
-    <TextView
-        android:id="@+id/textview_setting_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:textSize="16dp"
-        android:textColor="@color/colorDeviceIp"/>
+        android:layout_height="match_parent"
+        android:paddingLeft="10dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_weight="7">
+
+        <TextView
+            android:id="@+id/textview_setting_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="22dp"
+            android:textColor="@color/colorBlack"/>
+        <TextView
+            android:id="@+id/textview_setting_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:textColor="@color/colorDeviceIp"/>
+
+    </LinearLayout>
+
 </LinearLayout>

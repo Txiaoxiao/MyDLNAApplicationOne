@@ -15,7 +15,12 @@ public class SettingData {
     }
 
     private String title;
+
     private String description;
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public SettingData(String title,String description)
     {

@@ -7,14 +7,13 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +26,7 @@ import android.widget.TextView;
 
 import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
 import com.example.asus.mydlnaapplicationone.HttpServer.MultiThreadServer;
-import com.example.asus.mydlnaapplicationone.MediaServer.VideoServer;
+import com.example.asus.mydlnaapplicationone.MediaServer.MediaServer;
 import com.example.asus.mydlnaapplicationone.SSDP.SsdpConstants;
 
 import java.io.IOException;
@@ -80,13 +79,12 @@ public class ContentFragment extends Fragment {
         imageIcon = Utils.getBitmap(getActivity(), R.drawable.ic_imageicon);
 
         list = new ArrayList<>();
-        for (ContentItem contentItem : folderList
-                ) {
-            list.add(contentItem);
-        }
+
+        list.addAll(folderList);
+
         final ContentListViewAdapter adapter = new ContentListViewAdapter(getActivity(), list);
         listViewContent.setAdapter(adapter);
-
+            
         buttonReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,14 +171,14 @@ public class ContentFragment extends Fragment {
                                 height = 1000;
                             }
 
-                            VideoServer mediaserver = Globals.getInstance().getMediaServer();
+                            MediaServer mediaserver = Globals.getInstance().getMediaServer();
 
                             if (mediaserver != null) {
                                 mediaserver.closeAllConnections();
                                 mediaserver.stop();
                             }
 
-                            mediaserver = new VideoServer(httpServerPort,imageItemList,videoItemList,audioItemList);
+                            mediaserver = new MediaServer(httpServerPort,imageItemList,videoItemList,audioItemList);
                             Globals.getInstance().setMediaServer(mediaserver);
 
                             try {
@@ -225,10 +223,7 @@ public class ContentFragment extends Fragment {
                             String imageOrderBy = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
                             Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                             imageItemList = getContentProvider(uri, imageProjection, imageOrderBy, ContentType.Image);
-                            for (ContentItem item : imageItemList
-                                    ) {
-                                list.add(item);
-                            }
+                            list.addAll(imageItemList);
                             adapter.notifyDataSetChanged();
                             break;
 
@@ -244,10 +239,7 @@ public class ContentFragment extends Fragment {
                             String videoOrderBy = MediaStore.Video.Media.DEFAULT_SORT_ORDER;
                             Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                             videoItemList = getContentProvider(videoUri, videoProjection, videoOrderBy, ContentType.Video);
-                            for (ContentItem item : videoItemList
-                                    ) {
-                                list.add(item);
-                            }
+                            list.addAll(videoItemList);
                             adapter.notifyDataSetChanged();
                             break;
 
@@ -261,10 +253,7 @@ public class ContentFragment extends Fragment {
                             String audioOrderBy = MediaStore.Audio.Media.DEFAULT_SORT_ORDER;
                             Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                             audioItemList = getContentProvider(audioUri, audioProjection, audioOrderBy, ContentType.Audio);
-                            for (ContentItem item : audioItemList
-                                    ) {
-                                list.add(item);
-                            }
+                            list.addAll(audioItemList);
                             adapter.notifyDataSetChanged();
                             break;
                         default:
@@ -447,6 +436,7 @@ public class ContentFragment extends Fragment {
                 DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
                 socket = new DatagramSocket();
                 socket.send(packet);
+                socket.close();
 
             } catch (UnknownHostException e) {
                 Log.e("error","unknownHostException in ResponseToPCAsyncTask ");

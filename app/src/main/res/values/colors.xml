@@ -6,5 +6,6 @@
     <color name="colorBlack">#ff000000</color>
     <color name="colorListviewDivider">#555555</color>
     <color name="colorDeviceIp">#555555</color>
+    <color name="background_returnbutton">#0078D7</color>
     <color name="spots_dialog_color">@android:color/holo_blue_dark</color>
 </resources>

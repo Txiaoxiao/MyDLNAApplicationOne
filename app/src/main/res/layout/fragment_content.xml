@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorListviewDivider"
+        android:background="@color/background_returnbutton"
         android:orientation="horizontal">
 
         <Button
@@ -15,7 +15,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="15dp"
-            android:padding="5dp"
+            android:padding="15dp"
             android:layout_gravity="center_vertical"
             android:background="@drawable/ic_return"/>
 

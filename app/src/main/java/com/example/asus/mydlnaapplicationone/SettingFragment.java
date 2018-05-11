@@ -3,17 +3,30 @@ package com.example.asus.mydlnaapplicationone;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.asus.mydlnaapplicationone.MediaServer.MediaServer;
+import com.example.asus.mydlnaapplicationone.SSDP.SsdpConstants;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +40,8 @@ public class SettingFragment extends Fragment {
     TextView textviewItemTitle;
     TextView textViewItemDetails;
     List<SettingData> listSettingData;
+    boolean sharingFileList = false;
+    MediaServer videoServer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,10 +52,9 @@ public class SettingFragment extends Fragment {
          listview = view.findViewById(R.id.listview_setting);
          textviewItemTitle=view.findViewById(R.id.textview_setting_title);
          textViewItemDetails=view.findViewById(R.id.textview_setting_detail);
-
          initData();
 
-         SettingAdapter adapter = new SettingAdapter(getActivity(),listSettingData);
+         final SettingAdapter adapter = new SettingAdapter(getActivity(),listSettingData);
          listview.setAdapter(adapter);
 
          listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -51,16 +65,45 @@ public class SettingFragment extends Fragment {
                      Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
                      startActivity(intent);
                  }
+                 if(listSettingData.get(position).getTitle().equals("Sharing Media File"))
+                 {
+                     if(!sharingFileList)
+                     {
+                         Toast.makeText(getContext(),"Sharing Media File List.",Toast.LENGTH_LONG).show();
+                         listSettingData.get(position).setDescription("click to not sharing media file list to pc.");
+                         //try {
+                          // videoServer=  new MediaServer(8080);
+                          // videoServer.start();
+                        // } catch (IOException e) {
+                         //}
+                         sharingFileListToPc();
+                     }else {
+                         Toast.makeText(getContext(),"Close Sharing Media File List.",Toast.LENGTH_LONG).show();
+                         listSettingData.get(position).setDescription("click to sharing media file list to pc.");
+                         if (videoServer!=null)
+                         {
+                             //videoServer.stop();
+                         }
+                     }
+                     sharingFileList=!sharingFileList;
+                     adapter.notifyDataSetChanged();
+
+                 }
              }
          });
-
         return view;
+    }
+
+    private void sharingFileListToPc() {
+       new SharingFileListToPcAsyncTask().execute();
     }
 
     private void initData() {
         listSettingData = new ArrayList<>();
-        SettingData datafWifiManager = new SettingData("Network Setting","manager wireless network.");
-        listSettingData.add(datafWifiManager);
+        SettingData dataMediaSharing = new SettingData("Sharing Media File","click to sharing media file list on pc.");
+        listSettingData.add(dataMediaSharing);
+        SettingData dataWifiManager = new SettingData("Network Setting","manager wireless network.");
+        listSettingData.add(dataWifiManager);
     }
 
     private class SettingAdapter extends BaseAdapter{
@@ -100,6 +143,7 @@ public class SettingFragment extends Fragment {
                 convertView = inflater.inflate(R.layout.setting_item,null);
                 holder.settingDataTitle = convertView.findViewById(R.id.textview_setting_title);
                 holder.settingDataDescription=convertView.findViewById(R.id.textview_setting_detail);
+                holder.image = convertView.findViewById(R.id.imageview_setting_item);
                 convertView.setTag(holder);
             }else {
                 holder = (ViewHolder)convertView.getTag();
@@ -108,13 +152,57 @@ public class SettingFragment extends Fragment {
             SettingData data = settingDataList.get(position);
             holder.settingDataTitle.setText(data.getTitle());
             holder.settingDataDescription.setText(data.getDescription());
+            if(data.getTitle().equals("Sharing Media File"))
+            {
+                holder.image.setImageBitmap(Utils.getBitmap(getActivity(),R.drawable.ic_sharing));
+            }
+            else{
+                holder.image.setImageBitmap(Utils.getBitmap(getActivity(),R.drawable.ic_wifi));
+            }
 
             return convertView;
         }
 
         private class ViewHolder {
+            ImageView image;
             TextView settingDataTitle;
             TextView settingDataDescription;
+        }
+    }
+
+    private class SharingFileListToPcAsyncTask extends AsyncTask{
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+
+            InetAddress address = null;
+            DatagramSocket socket =null;
+
+            try {
+                address = SsdpConstants.selectedDevice.getDeviceInetAddress();
+                int port = 10003;
+                byte data[] = Utils.pathToUrl(getActivity(),"/startpage.html",8080).getBytes("utf-8");
+                DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+                socket = new DatagramSocket();
+                socket.send(packet);
+                socket.close();
+
+            } catch (UnknownHostException e) {
+                Log.e("error","unknownHostException in ResponseToPCAsyncTask ");
+
+            }catch (SocketException e) {
+                Log.e("error","SocketException in ResponseToPCAsyncTask ");
+
+            } catch (IOException e) {
+                Log.e("error","IOException  in ResponseToPCAsyncTask ");
+            }
+
+            return objects;
         }
     }
 }
