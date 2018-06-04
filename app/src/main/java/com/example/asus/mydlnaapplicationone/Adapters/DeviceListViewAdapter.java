@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Toast;
 
 import com.example.asus.mydlnaapplicationone.Device;
 import com.example.asus.mydlnaapplicationone.R;
@@ -70,7 +69,7 @@ public class DeviceListViewAdapter extends BaseAdapter {
 
         Device device = deviceList.get(position);
         holder.deviceNameTextView.setText(device.getName());
-        holder.deviceIpTextView.setText(device.getServer()+"  "+device.getDeviceInetAddress().toString().substring(1));
+        holder.deviceIpTextView.setText(device.getDescription()+"  "+device.getDeviceInetAddress().toString().substring(1));
         if(device.equals(Globals.getInstance().getSelectedDevice()))
         {
             holder.checkBox.setChecked(true);

@@ -10,11 +10,10 @@
         android:id="@+id/navigation_content"
         android:icon="@drawable/ic_content_black_24dp"
         android:title="@string/title_content" />
-<!--
     <item
         android:id="@+id/navigation_console"
-        android:icon="@drawable/ic_console_black_24dp"
-        android:title="@string/title_console" />-->
+        android:icon="@drawable/ic_console"
+        android:title="Console" />
     <item
         android:id="@+id/navigation_setting"
         android:icon="@drawable/ic_setting_black_24dp"

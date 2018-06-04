@@ -8,4 +8,8 @@
     <color name="colorDeviceIp">#555555</color>
     <color name="background_returnbutton">#0078D7</color>
     <color name="spots_dialog_color">@android:color/holo_blue_dark</color>
+    <color name="bg_wx_middle">#f8f8f8</color>
+    <color name="text_black">#575351</color>
+
+
 </resources>

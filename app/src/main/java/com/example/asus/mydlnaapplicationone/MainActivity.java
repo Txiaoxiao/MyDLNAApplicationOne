@@ -7,14 +7,16 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.asus.mydlnaapplicationone.Adapters.ViewPagerAdapter;
+import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
+import com.example.asus.mydlnaapplicationone.MediaServer.MediaServer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 //position is current page
                 //call this method when finish scrolling.
-
 
                 navigation.getMenu().getItem(position).setChecked(true);
             }
@@ -60,11 +61,11 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_content:
                     viewPager.setCurrentItem(1);
                     return true;
-               /* case R.id.navigation_console:
+                case R.id.navigation_console:
                     viewPager.setCurrentItem(2);
-                    return true;*/
+                    return true;
                 case R.id.navigation_setting:
-                    viewPager.setCurrentItem(2);
+                    viewPager.setCurrentItem(3);
                     return true;
             }
             return false;
@@ -73,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        Globals globalVariables = Globals.getInstance();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -85,18 +84,29 @@ public class MainActivity extends AppCompatActivity {
         multicastLock.acquire();
         viewPager =
                 (ViewPager)(findViewById(R.id.viewpager));
+        viewPager.setOffscreenPageLimit(4);
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
 
         initViewPager();
 
         //加载媒体库，开启媒体服务器。
-        LoadMediaFile();
+        LoadMediaFileThread();
+
+        MediaServer mediaServer = new MediaServer(8080);
+        Globals.getInstance().setMediaServer(mediaServer);
+        try {
+            mediaServer.start();
+        } catch (IOException e) {
+            Log.e("ERROR","start MediaServer failed.");
+        }
+
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         viewPager.setOnPageChangeListener(mOnPageChangeListener);
     }
 
-    private void LoadMediaFile() {
+    private void LoadMediaFileThread() {
+        new Thread(new ContentProvider(this)).start();
 
     }
 
@@ -105,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         listFragment = new ArrayList<>();
         listFragment.add(new DeviceFragment());
         listFragment.add(new ContentFragment());
-        //listFragment.add(new ConsoleFragment());
+        listFragment.add(new ConsoleFragment());
         listFragment.add(new SettingFragment());
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),this,listFragment);

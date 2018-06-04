@@ -1,7 +1,5 @@
 package com.example.asus.mydlnaapplicationone;
 
-import android.graphics.drawable.Drawable;
-
 import java.net.InetAddress;
 
 /**
@@ -14,14 +12,14 @@ public class Device{
 
     private InetAddress deviceInetAddress;
 
-    private String server;
+    private String description;
 
-    public String getServer() {
-        return server;
+    public String getDescription() {
+        return description;
     }
 
-    public void setServer(String server) {
-        this.server = server;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public InetAddress getDeviceInetAddress() {

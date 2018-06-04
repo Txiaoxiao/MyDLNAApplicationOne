@@ -11,9 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -66,9 +63,17 @@ public class DeviceFragment extends Fragment {
 
         ObjectAnimator animator= ObjectAnimator.ofFloat(refershButton,"rotation",0,360);
         animator.setRepeatCount(2);
-        animator.setDuration(1000);
+        animator.setDuration(800);
         animator.start();
-        searchRemoteDevices();
+
+        if(!Utils.isWiFi(getContext()))
+        {
+            Toast.makeText(getContext(),"The wireless network is not connected, please set up the network first",Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            searchRemoteDevices();
+        }
 
         refershButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,8 +87,9 @@ public class DeviceFragment extends Fragment {
 
                 ObjectAnimator animator= ObjectAnimator.ofFloat(view,"rotation",0,360);
                 animator.setRepeatCount(2);
-                animator.setDuration(1000);
+                animator.setDuration(800);
                 animator.start();
+
                 searchRemoteDevices();
             }
         });
@@ -143,7 +149,6 @@ public class DeviceFragment extends Fragment {
     private void searchRemoteDevices() {
         new SearchRemoteDevicesAsyncTask().execute();
     }
-
 
     class SearchRemoteDevicesAsyncTask extends  AsyncTask<Void,Void,List<Device>>{
 
@@ -213,7 +218,7 @@ public class DeviceFragment extends Fragment {
             SsdpMessage ssdpMessage = SsdpMessage.toMessage(s);
             Device device = new Device(ssdpMessage.getHeader("NAME"));
             device.setDeviceInetAddress(remoteAddress);
-            device.setServer(ssdpMessage.getHeader("SERVER"));
+            device.setDescription(ssdpMessage.getHeader("SERVER"));
             if(devices.contains(device))
             {
                 continue;

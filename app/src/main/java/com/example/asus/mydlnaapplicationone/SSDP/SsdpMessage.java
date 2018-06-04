@@ -41,7 +41,7 @@ public class SsdpMessage {
     }
     public static SsdpMessage toMessage(String raw) {
         if (!raw.endsWith(EOL + EOL)) {
-            throw new IllegalArgumentException("message is not complete, it should end with a blank line");
+           // throw new IllegalArgumentException("message is not complete, it should end with a blank line");
         }
 
         String[] lines = raw.split(EOL);
@@ -50,7 +50,7 @@ public class SsdpMessage {
         for (int i = 1; i < lines.length; ++i) {
             int index = lines[i].indexOf(":");
             if (index < 1) {
-                throw new IllegalArgumentException(String.format("invalid header format, line=%s, header=%s", i, lines[i]));
+                //throw new IllegalArgumentException(String.format("invalid header format, line=%s, header=%s", i, lines[i]));
             }
 
             message.setHeader(lines[i].substring(0, index).trim(), lines[i].substring(index + 1).trim());

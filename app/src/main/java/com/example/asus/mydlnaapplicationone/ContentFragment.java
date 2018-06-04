@@ -10,10 +10,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
-import com.example.asus.mydlnaapplicationone.HttpServer.MultiThreadServer;
 import com.example.asus.mydlnaapplicationone.MediaServer.MediaServer;
 import com.example.asus.mydlnaapplicationone.SSDP.SsdpConstants;
 
@@ -76,6 +74,11 @@ public class ContentFragment extends Fragment {
         buttonReturn.setVisibility(View.GONE);
 
         initFolderList();
+
+        imageItemList= Globals.getInstance().getImageList();
+        videoItemList = Globals.getInstance().getVideoList();
+        audioItemList = Globals.getInstance().getAudioList();
+
         imageIcon = Utils.getBitmap(getActivity(), R.drawable.ic_imageicon);
 
         list = new ArrayList<>();
@@ -84,7 +87,7 @@ public class ContentFragment extends Fragment {
 
         final ContentListViewAdapter adapter = new ContentListViewAdapter(getActivity(), list);
         listViewContent.setAdapter(adapter);
-            
+
         buttonReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,7 +162,7 @@ public class ContentFragment extends Fragment {
                             {
                                 new AlertDialog.Builder(getActivity())
                                         .setTitle("Attention:")
-                                        .setMessage("please select a remote fragment_device first!")
+                                        .setMessage("please select a remote device first!")
                                         .setPositiveButton("OK", null)
                                         .show();
                                return;
@@ -178,7 +181,7 @@ public class ContentFragment extends Fragment {
                                 mediaserver.stop();
                             }
 
-                            mediaserver = new MediaServer(httpServerPort,imageItemList,videoItemList,audioItemList);
+                            mediaserver = new MediaServer(httpServerPort);
                             Globals.getInstance().setMediaServer(mediaserver);
 
                             try {
@@ -210,54 +213,25 @@ public class ContentFragment extends Fragment {
                 } else {  //点击文件夹时的操作
                     contentTypeTag = 1;
                     buttonReturn.setVisibility(View.VISIBLE);
+                    list.clear();
                     switch (position) {
                         case 0:
                             mediaTypeTag = 0;
-                            list.clear();
-                            String[] imageProjection = {MediaStore.Images.Media._ID,
-                                    MediaStore.Images.Media.DISPLAY_NAME,
-                                    MediaStore.Images.Media.DATA,
-                                    MediaStore.Images.Media.DEFAULT_SORT_ORDER,
-                                    MediaStore.Images.Media.WIDTH,
-                                    MediaStore.Images.Media.HEIGHT};
-                            String imageOrderBy = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
-                            Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                            imageItemList = getContentProvider(uri, imageProjection, imageOrderBy, ContentType.Image);
-                            list.addAll(imageItemList);
-                            adapter.notifyDataSetChanged();
+                            list.addAll(Globals.getInstance().getImageList());
                             break;
 
                         case 1:
                             mediaTypeTag = 1;
-                            list.clear();
-                            String[] videoProjection = {MediaStore.Video.Media._ID,
-                                    MediaStore.Video.Media.DISPLAY_NAME,
-                                    MediaStore.Video.Media.DATA,
-                                    MediaStore.Video.Media.DEFAULT_SORT_ORDER,
-                                    MediaStore.Video.Media.WIDTH,
-                                    MediaStore.Video.Media.HEIGHT};
-                            String videoOrderBy = MediaStore.Video.Media.DEFAULT_SORT_ORDER;
-                            Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                            videoItemList = getContentProvider(videoUri, videoProjection, videoOrderBy, ContentType.Video);
-                            list.addAll(videoItemList);
-                            adapter.notifyDataSetChanged();
+                            list.addAll(Globals.getInstance().getVideoList());
                             break;
 
                         case 2:
                             mediaTypeTag = 2;
-                            list.clear();
-                            String[] audioProjection = {MediaStore.Audio.Media._ID,
-                                    MediaStore.Audio.Media.DISPLAY_NAME,
-                                    MediaStore.Audio.Media.DATA,
-                                    MediaStore.Audio.Media.DEFAULT_SORT_ORDER};
-                            String audioOrderBy = MediaStore.Audio.Media.DEFAULT_SORT_ORDER;
-                            Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                            audioItemList = getContentProvider(audioUri, audioProjection, audioOrderBy, ContentType.Audio);
-                            list.addAll(audioItemList);
-                            adapter.notifyDataSetChanged();
+                            list.addAll(Globals.getInstance().getAudioList());
                             break;
                         default:
                     }
+                    adapter.notifyDataSetChanged();
                 }
             }
         });
@@ -336,10 +310,10 @@ public class ContentFragment extends Fragment {
 
                 if (contentItem.getType().equals(ContentType.Image)) {
                     ContentResolver contentResolver = getActivity().getContentResolver();
-                    new ImageLoader().getThumbnailByThread(contentResolver, holder.icon, id, contentItem);
+                    new ThumbnailLoader().getThumbnailByThread(contentResolver, holder.icon, id, contentItem);
                 } else if (contentItem.getType().equals(ContentType.Video)) {
                     String path = contentItem.getPath();
-                    new ImageLoader().getVideoThumbnail(path, holder.icon, id, contentItem);
+                    new ThumbnailLoader().getVideoThumbnail(path, holder.icon, id, contentItem);
                 }
 
                 holder.arrowIcon.setVisibility(View.GONE);
@@ -405,6 +379,10 @@ public class ContentFragment extends Fragment {
                     contentItem.setWidth(Integer.parseInt(width));
                     contentItem.setHeight(Integer.parseInt(height));
                 }
+                if(contentType.equals(ContentType.Video))
+                {
+                    contentItem.setDuration(map.get(projection[6]));
+                }
                 listContentItem.add(contentItem);
             }
         }
@@ -446,24 +424,6 @@ public class ContentFragment extends Fragment {
 
             } catch (IOException e) {
                 Log.e("error","IOException  in ResponseToPCAsyncTask ");
-            }
-
-            return objects;
-        }
-    }
-
-    private class multiThreadServerAsyncTask extends AsyncTask {
-        @Override
-        protected Object doInBackground(Object[] objects) {
-
-            MultiThreadServer server = new MultiThreadServer(httpServerPort);
-
-            try {
-                server.run();
-
-            } catch (IOException e) {
-                Log.e("error", "IOException was thrown when multithreadserver run.");
-                System.out.println("IOException was thrown when multithreadserver run.");
             }
 
             return objects;

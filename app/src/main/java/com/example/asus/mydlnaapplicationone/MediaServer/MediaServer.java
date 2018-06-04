@@ -3,6 +3,7 @@ package com.example.asus.mydlnaapplicationone.MediaServer;
 import android.util.Log;
 
 import com.example.asus.mydlnaapplicationone.ContentItem;
+import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,11 +26,11 @@ public class MediaServer extends NanoHTTPD {
     List<ContentItem> videoList;
     List<ContentItem> audioList;
 
-    public MediaServer(int port, List<ContentItem> imageList, List<ContentItem> videoList, List<ContentItem> audioList) {
+    public MediaServer(int port) {
         super(port);
-        this.imageList = imageList;
-        this.videoList = videoList;
-        this.audioList = audioList;
+        this.imageList = Globals.getInstance().getImageList();
+        this.videoList = Globals.getInstance().getVideoList();
+        this.audioList = Globals.getInstance().getAudioList();
     }
     
     @Override
@@ -54,7 +55,16 @@ public class MediaServer extends NanoHTTPD {
             return responseRootPage(session);
         }
         else {
-            return responseVideoStream(session);
+            for (ContentItem item: videoList
+                 ) {
+                if(item.getPath().equals(session.getUri()))
+                {
+                    Globals.getInstance().setCurrentvideoDuration(item.getDuration());
+                    Globals.getInstance().setCurrentContentItem(item);
+                    break;
+                }
+            }
+            return responseMediaStream(session);
         }
     }
 
@@ -104,7 +114,7 @@ public class MediaServer extends NanoHTTPD {
     }
 
     
-    public Response responseVideoStream(IHTTPSession session) {
+    public Response responseMediaStream(IHTTPSession session) {
         try {
             FileInputStream fis = new FileInputStream(session.getUri());
             String mimeType=getMimeType(session.getUri());

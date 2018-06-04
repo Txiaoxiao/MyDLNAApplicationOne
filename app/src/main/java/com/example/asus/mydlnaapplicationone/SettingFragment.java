@@ -18,10 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.asus.mydlnaapplicationone.GlobalVariables.Globals;
 import com.example.asus.mydlnaapplicationone.MediaServer.MediaServer;
 import com.example.asus.mydlnaapplicationone.SSDP.SsdpConstants;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -46,7 +48,7 @@ public class SettingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
          View view =inflater.inflate(R.layout.fragment_setting, container, false);
 
          listview = view.findViewById(R.id.listview_setting);
@@ -65,29 +67,23 @@ public class SettingFragment extends Fragment {
                      Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
                      startActivity(intent);
                  }
-                 if(listSettingData.get(position).getTitle().equals("Sharing Media File"))
+                 else if(listSettingData.get(position).getTitle().equals("Sharing Media File"))
                  {
                      if(!sharingFileList)
                      {
                          Toast.makeText(getContext(),"Sharing Media File List.",Toast.LENGTH_LONG).show();
-                         listSettingData.get(position).setDescription("click to not sharing media file list to pc.");
-                         //try {
-                          // videoServer=  new MediaServer(8080);
-                          // videoServer.start();
-                        // } catch (IOException e) {
-                         //}
+                         listSettingData.get(position).setDescription("click to close sharing media file list to pc.");
                          sharingFileListToPc();
+
                      }else {
                          Toast.makeText(getContext(),"Close Sharing Media File List.",Toast.LENGTH_LONG).show();
                          listSettingData.get(position).setDescription("click to sharing media file list to pc.");
                          if (videoServer!=null)
                          {
-                             //videoServer.stop();
                          }
                      }
                      sharingFileList=!sharingFileList;
                      adapter.notifyDataSetChanged();
-
                  }
              }
          });
@@ -145,6 +141,7 @@ public class SettingFragment extends Fragment {
                 holder.settingDataDescription=convertView.findViewById(R.id.textview_setting_detail);
                 holder.image = convertView.findViewById(R.id.imageview_setting_item);
                 convertView.setTag(holder);
+
             }else {
                 holder = (ViewHolder)convertView.getTag();
             }
@@ -159,7 +156,6 @@ public class SettingFragment extends Fragment {
             else{
                 holder.image.setImageBitmap(Utils.getBitmap(getActivity(),R.drawable.ic_wifi));
             }
-
             return convertView;
         }
 
@@ -181,16 +177,64 @@ public class SettingFragment extends Fragment {
         protected Object doInBackground(Object[] objects) {
 
             InetAddress address = null;
-            DatagramSocket socket =null;
+            DatagramSocket socket = null;
 
             try {
+                while(true)
+                {
+                    if(SsdpConstants.selectedDevice==null)
+                    {
+                        continue;
+                    }else {
+                        break;
+                    }
+                }
                 address = SsdpConstants.selectedDevice.getDeviceInetAddress();
                 int port = 10003;
-                byte data[] = Utils.pathToUrl(getActivity(),"/startpage.html",8080).getBytes("utf-8");
-                DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-                socket = new DatagramSocket();
-                socket.send(packet);
-                socket.close();
+
+                for (ContentItem item:Globals.getInstance().getImageList()
+                     ) {
+                    String stringImage="image;";
+                    stringImage+=item.getName()+"&"+item.getPath();
+                    byte[] data =stringImage.getBytes("utf-8");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+                    socket = new DatagramSocket();
+                    socket.send(packet);
+                    socket.close();
+                }
+
+                for (ContentItem item:Globals.getInstance().getVideoList()
+                        ) {
+                    String stringImage="video;";
+                    stringImage+=item.getName()+"&"+item.getPath();
+                    byte[] data =stringImage.getBytes("utf-8");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+                    socket = new DatagramSocket();
+                    socket.send(packet);
+                    socket.close();
+                }
+                for (ContentItem item:Globals.getInstance().getAudioList()
+                        ) {
+                    String stringImage="audio;";
+                    stringImage+=item.getName()+"&"+item.getPath();
+                    byte[] data =stringImage.getBytes("utf-8");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+                    socket = new DatagramSocket();
+                    socket.send(packet);
+                    socket.close();
+                }
+
+               /* list +="|video:";
+                for (ContentItem item: Globals.getInstance().getVideoList()
+                     ) {
+                    list +=item.getName()+"&"+item.getPath()+"#";
+                }
+                list+="|audio:";
+                for (ContentItem item: Globals.getInstance().getAudioList()
+                     ) {
+                    list +=item.getName()+"&"+item.getPath()+"#";
+                }
+                builder.append(list);*/
 
             } catch (UnknownHostException e) {
                 Log.e("error","unknownHostException in ResponseToPCAsyncTask ");
@@ -199,10 +243,10 @@ public class SettingFragment extends Fragment {
                 Log.e("error","SocketException in ResponseToPCAsyncTask ");
 
             } catch (IOException e) {
-                Log.e("error","IOException  in ResponseToPCAsyncTask ");
+                Log.e("error",e.toString());
             }
-
             return objects;
         }
     }
+
 }

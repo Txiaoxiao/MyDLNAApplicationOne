@@ -12,7 +12,7 @@ import android.widget.ImageView;
  * Created by asus on 2018/3/23.
  */
 
-public class ImageLoader {
+public class ThumbnailLoader {
 
     private ImageView mImageView;
     private Long mImageId;

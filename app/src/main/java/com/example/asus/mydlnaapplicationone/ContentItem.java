@@ -16,6 +16,16 @@ public class ContentItem {
     private int width=0;
     private int height=0;
 
+    private String duration="00:00";
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
     public int getWidth() {
         return width;
     }
